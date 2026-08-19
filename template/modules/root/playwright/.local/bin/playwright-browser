@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+exec python3 \
+    "$HOME/.local/share/workspace/playwright/open_browser.py" "$@"
+

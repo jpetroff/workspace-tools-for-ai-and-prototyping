@@ -1,0 +1,27 @@
+# Linuxbrew precedes /usr/bin in PATH, so force Rust builds to use Debian's
+# pkg-config for Debian development packages. Also publish the multiarch search
+# directories without hard-coding amd64 or duplicating entries in nested shells.
+if [[ -x /usr/bin/pkg-config ]]; then
+    export PKG_CONFIG=/usr/bin/pkg-config
+fi
+
+if command -v dpkg-architecture >/dev/null 2>&1; then
+    tauri_multiarch="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+    for tauri_pkgconfig_path in \
+        /usr/share/pkgconfig \
+        /usr/lib/pkgconfig \
+        "/usr/lib/${tauri_multiarch}/pkgconfig"
+    do
+        case ":${PKG_CONFIG_PATH:-}:" in
+            *":${tauri_pkgconfig_path}:"*) ;;
+            *) PKG_CONFIG_PATH="${tauri_pkgconfig_path}${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" ;;
+        esac
+    done
+    export PKG_CONFIG_PATH
+    unset tauri_multiarch tauri_pkgconfig_path
+fi
+
+tauri-copy-vscode() {
+    mkdir -p .vscode
+    cp "$HOME/.vscode/"*.json .vscode/
+}

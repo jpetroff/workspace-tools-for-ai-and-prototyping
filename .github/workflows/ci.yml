@@ -1,0 +1,52 @@
+name: Validate workspace templates
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Run unit tests
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s template/tests -v
+
+      - name: Validate every profile and generated Terraform formatting
+        run: |
+          set -euo pipefail
+          output_root="$(mktemp -d)"
+          while IFS= read -r profile; do
+            name="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["name"])' "$profile")"
+            python3 template/assemble.py --profile "$profile" --check
+            python3 template/assemble.py \
+              --profile "$profile" \
+              --output "$output_root/$name"
+            terraform fmt -check -recursive "$output_root/$name/terraform"
+          done < <(find template/profiles -name '*.json' -type f | sort)
+
+      - name: Check source Terraform formatting
+        run: terraform fmt -check -recursive template/base/terraform
+
+      - name: Check shell syntax
+        run: |
+          set -euo pipefail
+          mapfile -d '' scripts < <(
+            find scripts template/base template/modules -type f \
+              \( -name '*.sh' -o -name 'workspace-init' -o -name 'init' \
+                 -o -name 'bash_config' -o -path '*/.local/bin/*' \
+                 -o -name 'desktop-backend.sh' \) -print0
+          )
+          bash -n "${scripts[@]}"

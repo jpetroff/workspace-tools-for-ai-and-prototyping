@@ -1,0 +1,1 @@
+export SAMPLE_CUSTOMIZATION_CONFIG="$HOME/.local/share/sample-customization/sample.conf"

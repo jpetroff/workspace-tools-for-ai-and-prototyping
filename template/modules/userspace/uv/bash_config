@@ -1,0 +1,7 @@
+eval "$(uv generate-shell-completion bash)"
+eval "$(uvx --generate-shell-completion bash)"
+
+uvinit() {
+    # Source the implementation so activation changes this interactive shell.
+    . "$HOME/.local/bin/uvsh" "$@"
+}

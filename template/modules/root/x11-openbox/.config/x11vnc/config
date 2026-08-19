@@ -1,0 +1,2 @@
+# Sourced by desktop-backend.sh. Use a Bash array so arguments retain quoting.
+X11VNC_ARGS=(-localhost -forever -shared -nopw -xkb -quiet)

@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ordered Coder workspace feature profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "description",
+    "image",
+    "features",
+    "display",
+    "coder_modules",
+    "native_debug",
+    "shm_size_mb"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 2 },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "description": { "type": "string", "minLength": 1 },
+    "image": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._/:@-]+$"
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "userspace"],
+      "properties": {
+        "root": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        },
+        "userspace": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backend", "autostart", "screen_size", "vnc_port", "novnc_port"],
+      "properties": {
+        "backend": {
+          "enum": ["none", "wayland-gpu", "wayland-software", "x11-openbox"]
+        },
+        "autostart": { "type": "boolean" },
+        "screen_size": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*x[1-9][0-9]*$"
+        },
+        "vnc_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "novnc_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "gpu": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["render_device"],
+          "properties": {
+            "render_device": {
+              "type": "string",
+              "pattern": "^/dev/dri/renderD[0-9]+$"
+            }
+          }
+        }
+      }
+    },
+    "preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "port"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+      }
+    },
+    "playwright": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deps_version"],
+      "properties": {
+        "deps_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "coder_modules": {
+      "type": "array",
+      "uniqueItems": true,
+      "contains": { "const": "code-server" },
+      "items": { "enum": ["code-server", "jetbrains"] }
+    },
+    "native_debug": { "type": "boolean" },
+    "shm_size_mb": {
+      "type": "integer",
+      "minimum": 64,
+      "maximum": 65536
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "display": {
+            "properties": { "backend": { "const": "wayland-gpu" } },
+            "required": ["backend"]
+          }
+        }
+      },
+      "then": {
+        "properties": { "display": { "required": ["gpu"] } }
+      },
+      "else": {
+        "properties": { "display": { "not": { "required": ["gpu"] } } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "display": {
+            "properties": { "backend": { "const": "none" } },
+            "required": ["backend"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "display": {
+            "properties": { "autostart": { "const": false } }
+          }
+        }
+      }
+    }
+  ]
+}

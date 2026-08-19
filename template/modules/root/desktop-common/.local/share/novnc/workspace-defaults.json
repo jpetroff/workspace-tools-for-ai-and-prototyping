@@ -1,0 +1,10 @@
+{
+  "autoconnect": true,
+  "reconnect": true,
+  "resize": "remote",
+  "quality": 9,
+  "compression": 0,
+  "show_dot": false,
+  "shared": true,
+  "path": "websockify"
+}

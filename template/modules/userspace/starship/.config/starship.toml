@@ -1,0 +1,519 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory\
+$hostname\
+$git_branch\
+$bun\
+$c\
+$cmake\
+$cpp\
+$dotnet\
+$fortran\
+$golang\
+$gradle\
+$haskell\
+$helm\
+$java\
+$kotlin\
+$lua\
+$nodejs\
+$perl\
+$php\
+$purescript\
+$python\
+$ruby\
+$rust\
+$swift\
+$terraform\
+$typst\
+$zig\
+$mise\
+$sudo\
+$cmd_duration\
+$status\
+$line_break\
+$character"""
+
+continuation_prompt = "[❯](dimmed gray) "
+
+[directory]
+style = "bold purple"
+
+[character]
+format = "$symbol "
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[git_branch]
+format = "$symbol[$branch(:$remote_branch)]($style) "
+symbol = "[∎∷](bold dimmed black)"
+style = "bold green"
+truncation_symbol = "…"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "yellow"
+
+# Language Symbols
+
+[hostname]
+ssh_symbol = ""
+format = '[$ssh_symbol$hostname]($style) '
+style = "bold blue"
+
+[python]
+format = "[·](dimmed black) [${symbol}${pyenv_prefix}(${version} )(\\($virtualenv\\) )]($style)"
+symbol = "py "
+style = "dimmed black"
+
+[aws]
+format = "on [$symbol($profile )(\\($region\\) )(\\[$duration\\] )]($style)"
+symbol = "aws "
+style = "dimmed black"
+
+[azure]
+format = "on [$symbol($subscription)]($style) "
+symbol = "az "
+style = "dimmed black"
+
+[buf]
+format = "with [$symbol($version )]($style)"
+symbol = "buf "
+style = "dimmed black"
+
+[bun]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "bun "
+style = "dimmed black"
+
+[c]
+format = "[·](dimmed black) [$symbol($version(-$name) )]($style)"
+symbol = "C "
+style = "dimmed black"
+
+[cpp]
+format = "[·](dimmed black) [$symbol($version(-$name) )]($style)"
+symbol = "C++ "
+style = "dimmed black"
+
+[cobol]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "cobol "
+style = "dimmed black"
+
+[conda]
+format = "[·](dimmed black) [$symbol$environment]($style) "
+symbol = "conda "
+style = "dimmed black"
+
+[container]
+format = "[$symbol \\[$name\\]]($style) "
+symbol = "container "
+style = "dimmed black"
+
+[crystal]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "cr "
+style = "dimmed black"
+
+[cmake]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "cmake "
+style = "dimmed black"
+
+[daml]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "daml "
+style = "dimmed black"
+
+[dart]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "dart "
+style = "dimmed black"
+
+[deno]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "deno "
+style = "dimmed black"
+
+[dotnet]
+format = "[·](dimmed black) [$symbol($version )(target $tfm )]($style)"
+symbol = ".NET "
+style = "dimmed black"
+
+[docker_context]
+format = "[·](dimmed black) [$symbol$context]($style) "
+symbol = "docker "
+style = "dimmed black"
+
+[elixir]
+format = "[·](dimmed black) [$symbol($version \\(OTP $otp_version\\) )]($style)"
+symbol = "exs "
+style = "dimmed black"
+
+[elm]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "elm "
+style = "dimmed black"
+
+[erlang]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "erl "
+style = "dimmed black"
+
+[fennel]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "fnl "
+style = "dimmed black"
+
+[fortran]
+format = "[·](dimmed black) [$symbol($version(-$name) )]($style)"
+symbol = "fortran "
+style = "dimmed black"
+
+[fossil_branch]
+format = "on [$symbol$branch]($style) "
+symbol = "fossil "
+style = "dimmed black"
+truncation_symbol = "..."
+
+[gcloud]
+format = "on [$symbol$account(@$domain)(\\($region\\))]($style) "
+symbol = "gcp "
+style = "dimmed black"
+
+[gleam]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "gleam "
+style = "dimmed black"
+
+[golang]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "go "
+style = "dimmed black"
+
+[gradle]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "gradle "
+style = "dimmed black"
+
+[guix_shell]
+format = "[·](dimmed black) [$symbol]($style) "
+symbol = "guix "
+style = "dimmed black"
+
+[haskell]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "haskell "
+style = "dimmed black"
+
+[haxe]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "hx "
+style = "dimmed black"
+
+[helm]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "helm "
+style = "dimmed black"
+
+[hg_branch]
+format = "on [$symbol$branch(:$topic)]($style) "
+symbol = "hg "
+style = "dimmed black"
+truncation_symbol = "..."
+
+[java]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "java "
+style = "dimmed black"
+
+[jobs]
+format = "[$symbol$number]($style) "
+symbol = "*"
+style = "dimmed black"
+
+[julia]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "jl "
+style = "dimmed black"
+
+[kotlin]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "kt "
+style = "dimmed black"
+
+[kubernetes]
+format = "[$symbol$context( \\($namespace\\))]($style) in "
+symbol = "kubernetes "
+style = "dimmed black"
+
+[lua]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "lua "
+style = "dimmed black"
+
+[maven]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "maven "
+style = "dimmed black"
+
+[nodejs]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "nodejs "
+style = "dimmed black"
+
+[memory_usage]
+format = "[·](dimmed black) $symbol[$ram( | $swap)]($style) "
+symbol = "memory "
+style = "dimmed black"
+
+[meson]
+format = "[·](dimmed black) [$symbol$project]($style) "
+symbol = "meson "
+style = "dimmed black"
+truncation_symbol = "..."
+
+[mojo]
+format = "with [$symbol($version )]($style)"
+symbol = "mojo "
+style = "dimmed black"
+
+[nats]
+format = "[$symbol($name )]($style)"
+symbol = "nats "
+style = "dimmed black"
+
+[netns]
+format = "[$symbol \\[$name\\]]($style) "
+symbol = "netns "
+style = "dimmed black"
+
+[nim]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "nim "
+style = "dimmed black"
+
+[nix_shell]
+format = "[·](dimmed black) [$symbol$state( \\($name\\))]($style) "
+symbol = "nix "
+style = "dimmed black"
+
+[ocaml]
+format = "[·](dimmed black) [$symbol($version )(\\($switch_indicator$switch_name\\) )]($style)"
+symbol = "ml "
+style = "dimmed black"
+
+[odin]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "odin "
+style = "dimmed black"
+
+[opa]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "opa "
+style = "dimmed black"
+
+[openstack]
+format = "on [$symbol$cloud(\\($project\\))]($style) "
+symbol = "openstack "
+style = "dimmed black"
+
+[os]
+format = "[$symbol]($style)"
+
+[os.symbols]
+AIX = "aix "
+Alpaquita = "alq "
+AlmaLinux = "alma "
+Alpine = "alp "
+ALTLinux = "alt "
+Amazon = "amz "
+Android = "andr "
+AOSC = "aosc "
+Arch = "rch "
+Artix = "atx "
+Bluefin = "blfn "
+CachyOS = "cach "
+CentOS = "cent "
+Debian = "deb "
+DragonFly = "dfbsd "
+Elementary = "elem "
+Emscripten = "emsc "
+EndeavourOS = "ndev "
+Fedora = "fed "
+FreeBSD = "fbsd "
+Garuda = "garu "
+Gentoo = "gent "
+HardenedBSD = "hbsd "
+Illumos = "lum "
+Ios = "ios "
+InstantOS = "inst "
+Kali = "kali "
+Linux = "lnx "
+Mabox = "mbox "
+Macos = "mac "
+Manjaro = "mjo "
+Mariner = "mrn "
+MidnightBSD = "mid "
+Mint = "mint "
+NetBSD = "nbsd "
+NixOS = "nix "
+Nobara = "nbra "
+OpenBSD = "obsd "
+OpenCloudOS = "ocos "
+openEuler = "oeul "
+openSUSE = "osuse "
+OracleLinux = "orac "
+PikaOS = "pika "
+Pop = "pop "
+Raspbian = "rasp "
+Redhat = "rhl "
+RedHatEnterprise = "rhel "
+RockyLinux = "rky "
+Redox = "redox "
+Solus = "sol "
+SUSE = "suse "
+Ubuntu = "ubnt "
+Ultramarine = "ultm "
+Unknown = "unk "
+Uos = "uos "
+Void = "void "
+Windows = "win "
+Zorin = "zorn "
+
+[package]
+format = "is [$symbol$version]($style) "
+symbol = "pkg "
+style = "dimmed black"
+
+[perl]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "pl "
+style = "dimmed black"
+
+[php]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "php "
+style = "dimmed black"
+
+[pijul_channel]
+format = "on [$symbol$channel]($style) "
+symbol = "pijul "
+style = "dimmed black"
+truncation_symbol = "..."
+
+[pixi]
+format = "[·](dimmed black) [$symbol($version )(\\($environment\\) )]($style)"
+symbol = "pixi "
+style = "dimmed black"
+
+[pulumi]
+format = "[·](dimmed black) [$symbol($username@)$stack]($style) "
+symbol = "pulumi "
+style = "dimmed black"
+
+[purescript]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "purs "
+style = "dimmed black"
+
+[quarto]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "quarto "
+style = "dimmed black"
+
+[raku]
+format = "[·](dimmed black) [$symbol($version-$vm_version )]($style)"
+symbol = "raku "
+style = "dimmed black"
+
+[red]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "red "
+style = "dimmed black"
+
+[rlang]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "r "
+style = "dimmed black"
+
+[ruby]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "rb "
+style = "dimmed black"
+
+[rust]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "rs "
+style = "dimmed black"
+
+[scala]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "scala "
+style = "dimmed black"
+
+[shlvl]
+format = "[$symbol$shlvl]($style) "
+symbol = "shlvl "
+style = "dimmed black"
+
+[spack]
+format = "[·](dimmed black) [$symbol$environment]($style) "
+symbol = "spack "
+style = "dimmed black"
+
+[solidity]
+format = "[·](dimmed black) [$symbol($version)]($style)"
+symbol = "solidity "
+style = "dimmed black"
+
+[status]
+format = "[$symbol$status]($style) "
+symbol = "[×](bold red) "
+style = "dimmed black"
+not_executable_symbol = "noexec"
+not_found_symbol = "notfound"
+sigint_symbol = "sigint"
+signal_symbol = "sig"
+
+[sudo]
+format = "[as $symbol]($style)"
+symbol = "sudo "
+style = "dimmed black"
+
+[swift]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "swift "
+style = "dimmed black"
+
+[typst]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "typst "
+style = "dimmed black"
+
+[vagrant]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "vagrant "
+style = "dimmed black"
+
+[terraform]
+format = "[·](dimmed black) [$symbol$workspace]($style) "
+symbol = "terraform "
+style = "dimmed black"
+
+[xmake]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "xmake "
+style = "dimmed black"
+
+[zig]
+format = "[·](dimmed black) [$symbol($version )]($style)"
+symbol = "zig "
+style = "dimmed black"

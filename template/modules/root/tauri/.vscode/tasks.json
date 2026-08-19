@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ui:dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        "owner": "tauri-ui",
+        "pattern": {
+          "regexp": "^(THIS_PATTERN_SHOULD_NEVER_MATCH):(\\d+):(.*)$",
+          "file": 1,
+          "line": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*(vite|VITE|npm run dev).*",
+          "endsPattern": ".*(Local:|ready in).*"
+        }
+      }
+    }
+  ]
+}
+

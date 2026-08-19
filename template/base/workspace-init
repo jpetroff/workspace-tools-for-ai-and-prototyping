@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+INIT="$HOME/.config/workspace/init"
+DONE="$HOME/.config/workspace/init.done"
+
+mkdir -p \
+    "$HOME/.cache" \
+    "$HOME/.config" \
+    "$HOME/.local/bin" \
+    "$HOME/.local/run/workspace-desktop" \
+    "$HOME/.local/share" \
+    "$HOME/.local/state/workspace-desktop" \
+    "$HOME/project" \
+    "$HOME/projects"
+chmod 0700 "$HOME/.local/run/workspace-desktop"
+
+if [[ -f "$INIT" ]]; then
+    bash "$INIT"
+    mv -f "$INIT" "$DONE"
+fi

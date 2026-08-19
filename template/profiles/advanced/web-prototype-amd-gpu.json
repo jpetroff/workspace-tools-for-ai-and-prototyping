@@ -1,0 +1,31 @@
+{
+  "$schema": "../../profile.schema.json",
+  "schema_version": 2,
+  "name": "coder-ai-web-prototype-amd-gpu",
+  "description": "Web prototyping workspace with Playwright and AMD GPU-accelerated Wayland.",
+  "image": "coder-ai-web-prototype-amd-gpu:latest",
+  "features": {
+    "root": ["core", "desktop-common", "wayland", "wayland-gpu", "fonts", "playwright"],
+    "userspace": ["linuxbrew", "bun", "uv", "starship"]
+  },
+  "display": {
+    "backend": "wayland-gpu",
+    "autostart": true,
+    "screen_size": "1440x960",
+    "vnc_port": 5900,
+    "novnc_port": 6080,
+    "gpu": {
+      "render_device": "/dev/dri/renderD128"
+    }
+  },
+  "preview": {
+    "enabled": true,
+    "port": 3000
+  },
+  "playwright": {
+    "deps_version": "1.62.0"
+  },
+  "coder_modules": ["code-server"],
+  "native_debug": false,
+  "shm_size_mb": 1024
+}

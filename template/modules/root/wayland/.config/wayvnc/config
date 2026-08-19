@@ -1,0 +1,3 @@
+# WayVNC defaults. The workspace script supplies loopback address, port and
+# output. Browser-side frame quality and compression live in the noVNC feature.
+enable_auth=false

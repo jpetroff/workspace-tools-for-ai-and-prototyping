@@ -1,0 +1,3 @@
+install -d "$HOME/.local/share/sample-customization"
+cp "$HOME/.config/sample-customization/sample.conf" \
+    "$HOME/.local/share/sample-customization/sample.conf"

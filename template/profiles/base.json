@@ -1,0 +1,21 @@
+{
+  "$schema": "../profile.schema.json",
+  "schema_version": 2,
+  "name": "coder-ai-base",
+  "description": "Browser IDE and command-line workspace for AI-assisted development.",
+  "image": "coder-ai-base:latest",
+  "features": {
+    "root": ["core", "display-none"],
+    "userspace": ["linuxbrew", "bun", "uv", "starship"]
+  },
+  "display": {
+    "backend": "none",
+    "autostart": false,
+    "screen_size": "1440x960",
+    "vnc_port": 5900,
+    "novnc_port": 6080
+  },
+  "coder_modules": ["code-server"],
+  "native_debug": false,
+  "shm_size_mb": 64
+}

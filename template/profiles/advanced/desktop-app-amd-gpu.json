@@ -1,0 +1,24 @@
+{
+  "$schema": "../../profile.schema.json",
+  "schema_version": 2,
+  "name": "coder-ai-desktop-app-amd-gpu",
+  "description": "Tauri desktop-app workspace with AMD GPU-accelerated Wayland and native debugging.",
+  "image": "coder-ai-desktop-app-amd-gpu:latest",
+  "features": {
+    "root": ["core", "desktop-common", "wayland", "wayland-gpu", "fonts", "tauri"],
+    "userspace": ["linuxbrew", "bun", "uv", "starship"]
+  },
+  "display": {
+    "backend": "wayland-gpu",
+    "autostart": true,
+    "screen_size": "1440x960",
+    "vnc_port": 5900,
+    "novnc_port": 6080,
+    "gpu": {
+      "render_device": "/dev/dri/renderD128"
+    }
+  },
+  "coder_modules": ["code-server"],
+  "native_debug": true,
+  "shm_size_mb": 1024
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workspace Desktop</title>
+</head>
+<body>
+  <p>Opening the workspace desktop…</p>
+  <script>
+    const fallback = {
+      autoconnect: true,
+      reconnect: true,
+      resize: "remote",
+      quality: 9,
+      compression: 0,
+      show_dot: false,
+      shared: true,
+      path: "websockify"
+    };
+
+    fetch("workspace-defaults.json")
+      .then((response) => response.ok ? response.json() : fallback)
+      .catch(() => fallback)
+      .then((settings) => {
+        const target = new URL("vnc.html", window.location.href);
+        for (const [name, value] of Object.entries(settings)) {
+          target.searchParams.set(name, value === true ? "1" : value === false ? "0" : value);
+        }
+        window.location.replace(target.toString());
+      });
+  </script>
+</body>
+</html>

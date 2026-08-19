@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Tauri: debug Rust core",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=./src-tauri/Cargo.toml"
+        ]
+      },
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "ui:dev",
+      "env": {
+        "DISPLAY": "${env:DISPLAY}",
+        "WAYLAND_DISPLAY": "${env:WAYLAND_DISPLAY}",
+        "XDG_RUNTIME_DIR": "${env:XDG_RUNTIME_DIR}",
+        "DBUS_SESSION_BUS_ADDRESS": "${env:DBUS_SESSION_BUS_ADDRESS}",
+        "RUST_BACKTRACE": "1"
+      }
+    }
+  ]
+}
+
