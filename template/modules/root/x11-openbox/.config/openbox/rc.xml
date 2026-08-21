@@ -17,6 +17,21 @@
     <name>Clearlooks</name>
     <titleLayout>NLIMC</titleLayout>
     <keepBorder>yes</keepBorder>
+    <font place="ActiveWindow">
+      <name>sans-serif</name><size>10</size><weight>bold</weight><slant>normal</slant>
+    </font>
+    <font place="InactiveWindow">
+      <name>sans-serif</name><size>10</size><weight>bold</weight><slant>normal</slant>
+    </font>
+    <font place="MenuHeader">
+      <name>sans-serif</name><size>10</size><weight>normal</weight><slant>normal</slant>
+    </font>
+    <font place="MenuItem">
+      <name>sans-serif</name><size>10</size><weight>normal</weight><slant>normal</slant>
+    </font>
+    <font place="OnScreenDisplay">
+      <name>sans-serif</name><size>10</size><weight>bold</weight><slant>normal</slant>
+    </font>
   </theme>
   <desktops>
     <number>4</number>
@@ -25,7 +40,7 @@
   </desktops>
   <keyboard>
     <keybind key="W-Return">
-      <action name="Execute"><command>xterm</command></action>
+      <action name="Execute"><command>xterm -fa monospace</command></action>
     </keybind>
     <keybind key="A-F4"><action name="Close"/></keybind>
   </keyboard>

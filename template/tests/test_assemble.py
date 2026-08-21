@@ -205,7 +205,7 @@ class GenerationTests(unittest.TestCase):
             with self.subTest(path=relative):
                 self.assertTrue((TEMPLATE_ROOT / relative).is_file())
 
-    def test_fonts_use_redistributable_debian_packages(self) -> None:
+    def test_fonts_install_packages_and_recursive_module_fonts(self) -> None:
         dockerfile = (TEMPLATE_ROOT / "modules/root/fonts/Dockerfile").read_text(
             encoding="utf-8"
         )
@@ -216,7 +216,75 @@ class GenerationTests(unittest.TestCase):
             "fonts-noto-core",
         ):
             self.assertIn(package, dockerfile)
-        self.assertEqual(list((TEMPLATE_ROOT / "modules/root/fonts").rglob("*.ttf")), [])
+        self.assertIn("COPY ./features/root/fonts/ /tmp/workspace-fonts/", dockerfile)
+        self.assertIn("find . -type f", dockerfile)
+        self.assertIn('fc-scan "$source"', dockerfile)
+        self.assertIn("/usr/local/share/fonts/workspace", dockerfile)
+        self.assertIn("fc-cache -f", dockerfile)
+        self.assertTrue(
+            list((TEMPLATE_ROOT / "modules/root/fonts/linux_default").rglob("*.ttf"))
+        )
+
+    def test_workspace_font_configures_fontconfig_and_gtk(self) -> None:
+        script = TEMPLATE_ROOT / "modules/root/fonts/.local/bin/workspace-font"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            home = root / "home"
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+
+            commands = {
+                "fc-list": """#!/bin/sh
+case " $* " in
+  *spacing*) printf 'Fira Code\\n' ;;
+  *) printf 'Fira Code\\nLiberation Sans\\n' ;;
+esac
+""",
+                "fc-match": """#!/bin/sh
+case " $* " in
+  *monospace*) printf 'Fira Code\\n' ;;
+  *) printf 'Liberation Sans\\n' ;;
+esac
+""",
+                "fc-cache": "#!/bin/sh\nexit 0\n",
+                "pgrep": "#!/bin/sh\nexit 1\n",
+            }
+            for name, content in commands.items():
+                command = fake_bin / name
+                command.write_text(content, encoding="utf-8")
+                command.chmod(0o755)
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(script),
+                    "--system",
+                    "Liberation Sans",
+                    "--monospace",
+                    "Fira Code",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                env={
+                    **os.environ,
+                    "HOME": str(home),
+                    "XDG_CONFIG_HOME": str(home / ".config"),
+                    "PATH": f"{fake_bin}:/usr/bin:/bin",
+                },
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            fontconfig = (
+                home / ".config/fontconfig/conf.d/20-workspace-defaults.conf"
+            ).read_text(encoding="utf-8")
+            self.assertIn("<family>Liberation Sans</family>", fontconfig)
+            self.assertIn("<family>Fira Code</family>", fontconfig)
+            for version in ("3.0", "4.0"):
+                gtk = (home / f".config/gtk-{version}/settings.ini").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn("gtk-font-name=Liberation Sans 10", gtk)
+            self.assertIn("System font:    Liberation Sans", result.stdout)
 
     def test_bun_and_uv_install_and_bash_initialization(self) -> None:
         bun_dockerfile = (
@@ -465,7 +533,13 @@ class GenerationTests(unittest.TestCase):
             ):
                 continue
             with self.subTest(path=path.relative_to(REPOSITORY_ROOT).as_posix()):
-                self.assertNotEqual(path.suffix.lower(), ".ttf")
+                if path.suffix.lower() == ".ttf":
+                    self.assertTrue(
+                        path.is_relative_to(
+                            TEMPLATE_ROOT / "modules/root/fonts/linux_default"
+                        )
+                    )
+                    continue
                 text = path.read_text(encoding="utf-8")
                 for value in forbidden:
                     self.assertNotIn(value, text)

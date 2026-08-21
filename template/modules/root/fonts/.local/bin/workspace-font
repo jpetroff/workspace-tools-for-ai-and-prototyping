@@ -1,0 +1,279 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+FONTCONFIG_FILE="$CONFIG_HOME/fontconfig/conf.d/20-workspace-defaults.conf"
+DESKTOP_ENV="${XDG_STATE_HOME:-$HOME/.local/state}/workspace-desktop/desktop.env"
+SYSTEM_FONT=""
+MONOSPACE_FONT=""
+FONT_SIZE="10"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  workspace-font
+  workspace-font --system FAMILY --monospace FAMILY [--size POINTS]
+  workspace-font --list
+  workspace-font --list-monospace
+  workspace-font --show
+
+With no arguments, choose the default UI and monospace families interactively.
+The chooser uses fzf when available and falls back to a numbered menu.
+EOF
+}
+
+font_families() {
+    local pattern="${1:-}"
+    if [[ -n "$pattern" ]]; then
+        fc-list "$pattern" -f '%{family[0]}\n'
+    else
+        fc-list -f '%{family[0]}\n'
+    fi | sed '/^[[:space:]]*$/d' | LC_ALL=C sort -fu
+}
+
+monospace_families() {
+    {
+        font_families ':spacing=90'
+        font_families ':spacing=100'
+        font_families ':spacing=110'
+    } | LC_ALL=C sort -fu
+}
+
+contains_family() {
+    local wanted="$1" family
+    shift
+    for family in "$@"; do
+        [[ "$family" == "$wanted" ]] && return 0
+    done
+    return 1
+}
+
+choose_family() {
+    local prompt="$1" current="$2"
+    shift 2
+    local -a families=("$@")
+    local choice index
+
+    if command -v fzf >/dev/null 2>&1; then
+        choice="$(printf '%s\n' "${families[@]}" | fzf \
+            --height=80% --reverse --border \
+            --prompt="$prompt [$current] > ")" || return 130
+        printf '%s' "$choice"
+        return
+    fi
+
+    printf '%s (current: %s)\n' "$prompt" "$current" >&2
+    for index in "${!families[@]}"; do
+        printf '%4d  %s\n' "$((index + 1))" "${families[index]}" >&2
+    done
+    while true; do
+        printf 'Enter number: ' >&2
+        IFS= read -r index
+        if [[ "$index" =~ ^[0-9]+$ ]] &&
+           (( index >= 1 && index <= ${#families[@]} )); then
+            printf '%s' "${families[index - 1]}"
+            return
+        fi
+        echo "Choose a number from 1 to ${#families[@]}." >&2
+    done
+}
+
+xml_escape() {
+    local value="$1"
+    value="${value//&/\&amp;}"
+    value="${value//</\&lt;}"
+    value="${value//>/\&gt;}"
+    printf '%s' "$value"
+}
+
+update_ini_setting() {
+    local file="$1" key="$2" value="$3" temporary
+    mkdir -p "$(dirname "$file")"
+    temporary="$(mktemp "${file}.tmp.XXXXXX")"
+    if [[ -f "$file" ]]; then
+        awk -v key="$key" -v value="$value" '
+            BEGIN { in_settings = 0; saw_settings = 0; wrote = 0 }
+            function emit_setting() {
+                if (in_settings && !wrote) {
+                    print key "=" value
+                    wrote = 1
+                }
+            }
+            /^[[:space:]]*\[/ {
+                emit_setting()
+                in_settings = ($0 ~ /^[[:space:]]*\[Settings\][[:space:]]*$/)
+                if (in_settings) saw_settings = 1
+                print
+                next
+            }
+            {
+                if (in_settings && $0 ~ "^[[:space:]]*" key "[[:space:]]*=") {
+                    if (!wrote) print key "=" value
+                    wrote = 1
+                    next
+                }
+                print
+            }
+            END {
+                emit_setting()
+                if (!saw_settings) {
+                    if (NR > 0) print ""
+                    print "[Settings]"
+                    print key "=" value
+                }
+            }
+        ' "$file" > "$temporary"
+    else
+        printf '[Settings]\n%s=%s\n' "$key" "$value" > "$temporary"
+    fi
+    mv "$temporary" "$file"
+}
+
+reload_desktop() {
+    if [[ -r "$DESKTOP_ENV" ]]; then
+        if pgrep -x sway >/dev/null 2>&1; then
+            (source "$DESKTOP_ENV" && swaymsg reload >/dev/null) ||
+                echo 'Warning: could not reload Sway.' >&2
+        elif pgrep -x openbox >/dev/null 2>&1; then
+            (source "$DESKTOP_ENV" && openbox --reconfigure) ||
+                echo 'Warning: could not reconfigure Openbox.' >&2
+        fi
+    fi
+}
+
+ACTION=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --system)
+            [[ $# -ge 2 ]] || { echo 'Missing family after --system.' >&2; exit 2; }
+            SYSTEM_FONT="$2"
+            shift 2
+            ;;
+        --monospace)
+            [[ $# -ge 2 ]] || { echo 'Missing family after --monospace.' >&2; exit 2; }
+            MONOSPACE_FONT="$2"
+            shift 2
+            ;;
+        --size)
+            [[ $# -ge 2 ]] || { echo 'Missing point size after --size.' >&2; exit 2; }
+            FONT_SIZE="$2"
+            shift 2
+            ;;
+        --list|--list-monospace|--show)
+            ACTION="$1"
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+done
+
+for command in fc-list fc-match fc-cache; do
+    command -v "$command" >/dev/null 2>&1 || {
+        echo "Required command is missing: $command" >&2
+        exit 1
+    }
+done
+
+case "$ACTION" in
+    --list)
+        font_families
+        exit
+        ;;
+    --list-monospace)
+        monospace_families
+        exit
+        ;;
+    --show)
+        printf 'System:    %s\n' "$(fc-match -f '%{family[0]}\n' sans-serif)"
+        printf 'Monospace: %s\n' "$(fc-match -f '%{family[0]}\n' monospace)"
+        exit
+        ;;
+esac
+
+[[ "$FONT_SIZE" =~ ^[1-9][0-9]*([.][0-9]+)?$ ]] || {
+    echo "Invalid point size: $FONT_SIZE" >&2
+    exit 2
+}
+
+ALL_FAMILIES=()
+while IFS= read -r family; do
+    ALL_FAMILIES+=("$family")
+done < <(font_families)
+MONOSPACE_FAMILIES=()
+while IFS= read -r family; do
+    MONOSPACE_FAMILIES+=("$family")
+done < <(monospace_families)
+(( ${#ALL_FAMILIES[@]} > 0 )) || { echo 'No fonts are installed.' >&2; exit 1; }
+(( ${#MONOSPACE_FAMILIES[@]} > 0 )) || {
+    echo 'No fixed-width fonts are installed.' >&2
+    exit 1
+}
+
+CURRENT_SYSTEM="$(fc-match -f '%{family[0]}' sans-serif)"
+CURRENT_MONOSPACE="$(fc-match -f '%{family[0]}' monospace)"
+
+if [[ -z "$SYSTEM_FONT" && -z "$MONOSPACE_FONT" ]]; then
+    [[ -t 0 && -t 1 ]] || {
+        echo 'Interactive selection requires a terminal.' >&2
+        usage >&2
+        exit 2
+    }
+    SYSTEM_FONT="$(choose_family 'System font' "$CURRENT_SYSTEM" "${ALL_FAMILIES[@]}")" || exit $?
+    MONOSPACE_FONT="$(choose_family 'Monospace font' "$CURRENT_MONOSPACE" \
+        "${MONOSPACE_FAMILIES[@]}")" || exit $?
+else
+    SYSTEM_FONT="${SYSTEM_FONT:-$CURRENT_SYSTEM}"
+    MONOSPACE_FONT="${MONOSPACE_FONT:-$CURRENT_MONOSPACE}"
+fi
+
+contains_family "$SYSTEM_FONT" "${ALL_FAMILIES[@]}" || {
+    echo "System font is not installed: $SYSTEM_FONT" >&2
+    exit 2
+}
+contains_family "$MONOSPACE_FONT" "${ALL_FAMILIES[@]}" || {
+    echo "Monospace font is not installed: $MONOSPACE_FONT" >&2
+    exit 2
+}
+
+mkdir -p "$(dirname "$FONTCONFIG_FILE")"
+TEMPORARY="$(mktemp "${FONTCONFIG_FILE}.tmp.XXXXXX")"
+trap 'rm -f "${TEMPORARY:-}"' EXIT
+SYSTEM_XML="$(xml_escape "$SYSTEM_FONT")"
+MONOSPACE_XML="$(xml_escape "$MONOSPACE_FONT")"
+cat > "$TEMPORARY" <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <alias binding="strong">
+    <family>sans-serif</family>
+    <prefer><family>$SYSTEM_XML</family></prefer>
+  </alias>
+  <alias binding="strong">
+    <family>monospace</family>
+    <prefer><family>$MONOSPACE_XML</family></prefer>
+  </alias>
+</fontconfig>
+EOF
+mv "$TEMPORARY" "$FONTCONFIG_FILE"
+TEMPORARY=""
+
+update_ini_setting "$CONFIG_HOME/gtk-3.0/settings.ini" \
+    gtk-font-name "$SYSTEM_FONT $FONT_SIZE"
+update_ini_setting "$CONFIG_HOME/gtk-4.0/settings.ini" \
+    gtk-font-name "$SYSTEM_FONT $FONT_SIZE"
+
+fc-cache -f >/dev/null
+reload_desktop
+
+printf 'System font:    %s\n' "$(fc-match -f '%{family[0]}' sans-serif)"
+printf 'Monospace font: %s\n' "$(fc-match -f '%{family[0]}' monospace)"
+echo 'Reopen running applications to ensure they pick up the new defaults.'

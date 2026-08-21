@@ -1,4 +1,4 @@
-font pango:DejaVu Sans 10
+font pango:sans-serif 10
 
 # Force XWayland so arbitrary X11 tools have the stable DISPLAY=:0 endpoint.
 xwayland force
