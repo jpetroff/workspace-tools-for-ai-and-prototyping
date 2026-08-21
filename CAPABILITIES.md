@@ -1,30 +1,18 @@
 # Capabilities and roadmap
 
-This document separates what Coder AI Workspaces provides today from useful
-extensions that are not part of the default template. The distinction matters:
-an attractive AI-generated prototype is not automatically reliable, secure, or
-maintainable software.
+[Coder](https://coder.com/) provides excellent base for assembling workspaces. Here you can find customizable building blocks specifically for each use-case and way to customize them.
 
-Research with non-expert programmers found that people can run out of recovery
-strategies when generated code fails. Interviews with UX professionals also
-reported code reliability, integration, over-reliance, ownership, and review as
-recurring concerns. These findings inform the focus on observable workspaces,
-repeatable tests, and clear handoff boundaries:
-
-- [Non-Expert Programmers in the Generative AI Future](https://www.feldmanmolly.com/chiwork2024-author-version.pdf)
-- [Vibe Coding for UX Design](https://arxiv.org/abs/2509.10652)
-- [Figma's 2025 AI report](https://www.figma.com/reports/ai-2025/)
-- [General Assembly's product-management survey](https://www.generalassemb.ly/blog/ai-and-product-management-survey/)
+This page covers only technical building blocks of the tooling framework. **If you are looking for practical setup suggestions**, i.e. how to start using your Codex Desktop app along with a workspace, check WORKFLOW-SETUP.md.
 
 ## Available now
 
 ### Task-oriented workspace profiles
 
-| Profile | Best for | Included experience |
-| --- | --- | --- |
-| Base | CLI tools, code review, scripts | code-server, Git, native build tools, Bun, uv, Linuxbrew |
-| Web Prototype | PM and designer web prototypes | Base plus private preview, Playwright, fonts, X11 desktop |
-| Desktop App | Tauri prototypes | Base plus Tauri libraries, native debugging, Wayland desktop |
+| Profile       | Best for                        | Included experience                                          |
+| ------------- | ------------------------------- | ------------------------------------------------------------ |
+| Base          | CLI tools, code review, scripts | code-server, Git, native build tools, Bun, uv, Linuxbrew     |
+| Web Prototype | PM and designer web prototypes  | Base plus private preview, Playwright, fonts, X11 desktop    |
+| Desktop App   | Tauri prototypes                | Base plus Tauri libraries, native debugging, Wayland desktop |
 
 AMD GPU variants are available for administrators who can safely expose a DRM
 render node. The normal defaults use no GPU or software rendering and work on a
@@ -42,9 +30,17 @@ for Git providers. See [Coder external auth](https://coder.com/docs/admin/extern
 
 ### Browser IDE and persistent files
 
-code-server opens the selected project in a browser. A named Docker volume
+`code-server` opens the selected project in a browser. A named Docker volume
 persists `/home`, so source files, caches, and settings survive workspace stops.
 Creating a different workspace provides a clean project boundary.
+
+Each image comes with [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux) package manager preinstalled. From there you can install anything safely after the workspace is created and keep it installed. Workspaces are personalized extensions of personal development environment, not a production build. They are not meant to be ‘immutable’. They evolve with the user, tools and functionality can be added at any point on demand just like you would on your own device. 
+
+```sh
+> brew install …
+```
+
+This should get you pretty much anything you need ;) 
 
 ### Known preview URL
 
@@ -59,6 +55,39 @@ The X11 and Wayland backends provide a browser-accessible noVNC desktop for
 headed browser work and Linux desktop applications. Desktop services run as the
 unprivileged `coder` user, bind to workspace loopback, and are exposed through
 an owner-only Coder app.
+
+Desktop starts automatically on workspace launch, logs and status shown within Coder interface. 
+
+```sh
+> workspace-desktop -h
+Usage:
+  workspace-desktop start [--size WIDTHxHEIGHT]
+  workspace-desktop stop
+  workspace-desktop restart [--size WIDTHxHEIGHT]
+  workspace-desktop status
+  workspace-desktop health
+  workspace-desktop gpu
+  workspace-desktop logs [dbus|sway|wayvnc|novnc]
+  workspace-desktop env
+  workspace-desktop run APPLICATION [ARGUMENT...]
+```
+
+### Fonts
+
+This repository contains only Linux default fonts for GNOME desktop for licensing reasons. You can always add Windows and Macos default fonts personally for development reasons (and under development license directly from either party). These fonts are bundled into the images and can be changed:
+
+```sh
+> workspace-font -h
+Usage:
+  workspace-font
+  workspace-font --system FAMILY --monospace FAMILY [--size POINTS]
+  workspace-font --list
+  workspace-font --list-monospace
+  workspace-font --show
+
+With no arguments, choose the default UI and monospace families interactively.
+The chooser uses fzf when available and falls back to a numbered menu.
+```
 
 ### Browser automation
 
@@ -104,6 +133,8 @@ Offer organization-approved launchers through [Coder Agents](https://coder.com/d
 or pinned Registry modules such as Claude Code or Codex. A production design
 must choose authentication, model access, network policy, telemetry, and safe
 defaults rather than embedding personal API keys.
+
+Alternatively install via Linuxbrew a tool of your choice after creating a workspace, i.e. `brew install codex`. 
 
 ### Guided presets and prebuilt workspaces
 
