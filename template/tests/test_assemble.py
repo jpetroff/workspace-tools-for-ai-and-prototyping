@@ -448,6 +448,40 @@ esac
         self.assertIn('"$HOME/project"', init)
         self.assertIn('"$HOME/projects"', init)
 
+    def test_shell_welcome_lists_scripts_and_declared_functions(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            workspace_config = home / ".config/workspace"
+            workspace_config.mkdir(parents=True)
+            (home / ".config/bash_config").write_text(
+                "workspace-example() { :; }\n", encoding="utf-8"
+            )
+            (workspace_config / "scripts").write_text(
+                "workspace-script\n", encoding="utf-8"
+            )
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    "--noprofile",
+                    "--rcfile",
+                    str(TEMPLATE_ROOT / "base/.bashrc"),
+                    "-i",
+                    "-c",
+                    "exit",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                env={**os.environ, "HOME": str(home), "TERM": "dumb"},
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("Available scripts:", result.stdout)
+            self.assertIn("workspace-script", result.stdout)
+            self.assertIn("Available functions:", result.stdout)
+            self.assertIn("workspace-example", result.stdout)
+
     def test_init_runs_once_then_is_renamed(self) -> None:
         script = TEMPLATE_ROOT / "base/workspace-init"
         with tempfile.TemporaryDirectory() as temporary:

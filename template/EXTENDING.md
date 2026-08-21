@@ -143,7 +143,8 @@ work there.
 
 The shell reads `~/.config/workspace/scripts`, which the assembler derives from
 selected `.local/bin` directories, and prints the workspace description plus a
-colored list of commands.
+colored list of commands. It also uses Bash's `declare -F` after loading the
+assembled feature configuration to show the names of available shell functions.
 
 ## Add a root feature
 

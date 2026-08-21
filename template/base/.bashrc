@@ -46,4 +46,17 @@ if [ -s "$HOME/.config/workspace/scripts" ]; then
     unset workspace_script workspace_script_list
 fi
 
+workspace_function_list=""
+while read -r workspace_declare workspace_flag workspace_function; do
+    [ -n "$workspace_function" ] || continue
+    if [ -n "$workspace_function_list" ]; then
+        workspace_function_list+="${COLOR_GREY}, ${COLOR_END}"
+    fi
+    workspace_function_list+="${COLOR_L_MAGENTA}${workspace_function}${COLOR_END}"
+done < <(declare -F)
+if [ -n "$workspace_function_list" ]; then
+    echo -e "${COLOR_GREY}Available functions:${COLOR_END} ${workspace_function_list}"
+fi
+unset workspace_declare workspace_flag workspace_function workspace_function_list
+
 unset COLOR_L_MAGENTA COLOR_GREY COLOR_END
